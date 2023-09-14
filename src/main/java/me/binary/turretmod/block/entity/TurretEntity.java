@@ -2,26 +2,26 @@ package me.binary.turretmod.block.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class TurretEntity extends BlockEntity implements MenuProvider {
+public class TurretEntity extends BlockEntity {
+
+    private static int timer;
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -76,21 +76,20 @@ public class TurretEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setItem(ItemStack item) {
-        //dropContents();
-        itemHandler.insertItem(1,item,true);
+        dropContents();
+        itemHandler.setStackInSlot(0, item);
     }
 
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, TurretEntity e) {
-    }
-
-    @Override
-    public Component getDisplayName() {
-        return Component.literal("Turret");
-    }
-
-    @Nullable
-    @Override
-    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return null;
+        if (e.itemHandler.getStackInSlot(0).getCount() > 0 && e.itemHandler.getStackInSlot(0).is(Items.ARROW)) {
+            Entity a = EntityType.ARROW.create(level);
+            a.setPos(Vec3.atCenterOf(blockPos.above()));
+            a.setDeltaMovement(Math.random()-0.5d,1d,Math.random()-0.5d);
+            level.addFreshEntity(a);
+            System.out.println(a.position());
+            ItemStack n = e.itemHandler.getStackInSlot(0);
+            n.setCount(n.getCount()-1);
+            e.itemHandler.setStackInSlot(0,n);
+        }
     }
 }

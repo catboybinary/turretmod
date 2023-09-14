@@ -27,7 +27,7 @@ import static me.binary.turretmod.block.entity.ModBlockEntities.BLOCK_ENTITIES;
 @Mod(TurretMod.MODID)
 public class TurretMod {
     public static final String MODID = "turretmod";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public TurretMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
