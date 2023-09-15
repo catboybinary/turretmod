@@ -30,8 +30,10 @@ public class TurretMod {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
+        //Register different things
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+        Maps.register();
         ModBlockEntities.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in

@@ -33,6 +33,7 @@ public class TurretBlock extends BaseEntityBlock {
         if(state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof TurretEntity) {
+                //Drops contents
                 ((TurretEntity) blockEntity).dropContents();
             }
         }
@@ -45,6 +46,7 @@ public class TurretBlock extends BaseEntityBlock {
         if (!level.isClientSide()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if(blockEntity instanceof TurretEntity) {
+                //Adds the item to the turret, while removing it from player's hand
                 ((TurretEntity) blockEntity).setItem(player.getItemInHand(hand));
                 player.setItemInHand(hand, ItemStack.EMPTY);
             }

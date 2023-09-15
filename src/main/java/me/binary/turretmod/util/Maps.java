@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class Maps {
     public static HashMap<Item, EntityType> PROJECTILES = new HashMap<>();
-    public Maps() {
+    public static void register() {
         PROJECTILES.put(Items.ARROW, EntityType.ARROW);
         PROJECTILES.put(Items.SNOWBALL, EntityType.SNOWBALL);
         PROJECTILES.put(Items.SPECTRAL_ARROW, EntityType.SPECTRAL_ARROW);
@@ -17,5 +17,6 @@ public class Maps {
         PROJECTILES.put(Items.EGG, EntityType.EGG);
         PROJECTILES.put(Items.ENDER_PEARL, EntityType.ENDER_PEARL);
         PROJECTILES.put(Items.TRIDENT, EntityType.TRIDENT);
+        PROJECTILES.put(Items.EXPERIENCE_BOTTLE, EntityType.EXPERIENCE_BOTTLE);
     }
 }
