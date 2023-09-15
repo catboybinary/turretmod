@@ -1,5 +1,6 @@
 package me.binary.turretmod.block.entity;
 
+import me.binary.turretmod.util.Maps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -8,6 +9,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -89,15 +91,19 @@ public class TurretEntity extends BlockEntity {
     }
 
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, TurretEntity e) {
-        if (e.itemHandler.getStackInSlot(0).getCount() > 0 && e.itemHandler.getStackInSlot(0).is(Items.ARROW)) {
-            if (level.isClientSide) return;
+        if (level.isClientSide) return;
+        ItemStack item = e.itemHandler.getStackInSlot(0);
+        if (item.getCount() > 0 && Maps.PROJECTILES.containsKey(item.getItem())) {
             List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class,new AABB(blockPos.subtract(new Vec3i(5,5,5)),blockPos.subtract(new Vec3i(-5,-5,-5))));
             if (entities.isEmpty()) return;
             e.timer = (e.timer + 1) % 20;
             if (e.timer>0) return;
 
             LivingEntity target = entities.get(random.nextInt(entities.size()));
-            Projectile projectile = EntityType.ARROW.create(level);
+            Projectile projectile = (Projectile) Maps.PROJECTILES.get(item.getItem()).create(level);
+            if (projectile instanceof Arrow) {
+                ((Arrow) projectile).setEffectsFromItem(item);
+            }
             projectile.setPos(Vec3.atCenterOf(blockPos.above()));
             Vec3 targetPosition = target.position().add(0,target.getEyeHeight()/2,0);
             Vec3 blockPosition = Vec3.atCenterOf(blockPos.above());
