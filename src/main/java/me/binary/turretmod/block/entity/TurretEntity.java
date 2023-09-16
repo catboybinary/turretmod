@@ -110,11 +110,11 @@ public class TurretEntity extends BlockEntity {
             if (projectile instanceof Arrow) {
                 ((Arrow) projectile).setEffectsFromItem(item);
             }
-            projectile.setPos(Vec3.atCenterOf(blockPos.above()));
+            projectile.setPos(Vec3.atCenterOf(blockPos));
 
             //AI
             Vec3 targetPosition = target.position().add(0,target.getEyeHeight()/2,0);
-            Vec3 blockPosition = Vec3.atCenterOf(blockPos.above());
+            Vec3 blockPosition = Vec3.atCenterOf(blockPos);
             if (projectile instanceof SmallFireball) {
                 projectile.setDeltaMovement(targetPosition.subtract(blockPosition).normalize());
             } else {
