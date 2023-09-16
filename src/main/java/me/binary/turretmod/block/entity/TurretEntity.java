@@ -97,10 +97,10 @@ public class TurretEntity extends BlockEntity {
         if (level.isClientSide) return;
         ItemStack item = e.itemHandler.getStackInSlot(0);
         if (item.getCount() > 0 && Maps.PROJECTILES.containsKey(item.getItem())) {
-            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class,new AABB(blockPos.subtract(new Vec3i(5,5,5)),blockPos.subtract(new Vec3i(-5,-5,-5))));
+            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class,new AABB(blockPos.subtract(new Vec3i(8,8,8)),blockPos.subtract(new Vec3i(-8,-8,-8))));
             if (entities.isEmpty()) return;
-            // Shoots every second, counts ticks only when an entity is nearby
-            e.timer = (e.timer + 1) % 20;
+            // Shoots every 10 ticks, counts ticks only when an entity is nearby
+            e.timer = (e.timer + 1) % 10;
             if (e.timer>0) return;
 
             LivingEntity target = entities.get(random.nextInt(entities.size()));
@@ -119,7 +119,7 @@ public class TurretEntity extends BlockEntity {
                 projectile.setDeltaMovement(targetPosition.subtract(blockPosition).normalize());
             } else {
                 projectile.setDeltaMovement(targetPosition.subtract(blockPosition).normalize()
-                        .add(0,targetPosition.distanceTo(blockPosition)/25,0));
+                        .add((Math.random()-0.5)/32,targetPosition.distanceTo(blockPosition)/32,(Math.random()-0.5)/32));
             }
 
             level.addFreshEntity(projectile);
