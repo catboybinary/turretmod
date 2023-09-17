@@ -19,8 +19,9 @@ import static me.binary.turretmod.TurretMod.MODID;
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     public static final RegistryObject<Block> TURRET_BLOCK = registerBlock("turret_block",
-            () -> new TurretBlock(BlockBehaviour.Properties.of(Material.METAL)
-                    .strength(6f).requiresCorrectToolForDrops().noOcclusion()), CreativeModeTab.TAB_REDSTONE);
+            () -> new TurretBlock(BlockBehaviour.Properties.of(Material.METAL)), CreativeModeTab.TAB_REDSTONE);
+    public static final RegistryObject<Block> FIRE_FACTORY_BLOCK = registerBlock("fire_factory",
+            () -> new FireFactoryBlock(BlockBehaviour.Properties.of(Material.METAL)), CreativeModeTab.TAB_BREWING);
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block, CreativeModeTab tab) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
