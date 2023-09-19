@@ -4,8 +4,12 @@ import com.mojang.logging.LogUtils;
 import me.binary.turretmod.block.ModBlocks;
 import me.binary.turretmod.block.entity.ModBlockEntities;
 import me.binary.turretmod.item.ModItems;
+import me.binary.turretmod.networking.ModMessages;
+import me.binary.turretmod.screen.FireFactoryScreen;
+import me.binary.turretmod.screen.ModMenuTypes;
 import me.binary.turretmod.util.Maps;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,6 +39,8 @@ public class TurretMod {
         ModBlocks.register(modEventBus);
         Maps.register();
         ModBlockEntities.register(modEventBus);
+        ModMenuTypes.register(modEventBus);
+        ModMessages.register();
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -63,6 +69,7 @@ public class TurretMod {
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+            MenuScreens.register(ModMenuTypes.FIRE_FACTORY_MENU.get(), FireFactoryScreen::new);
         }
     }
 }
