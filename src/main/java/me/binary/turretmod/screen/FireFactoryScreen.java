@@ -37,7 +37,7 @@ public class FireFactoryScreen extends AbstractContainerScreen<FireFactoryMenu> 
 
     private void renderProgressArrow(PoseStack pPoseStack, int x, int y) {
         if(menu.isCrafting()) {
-            blit(pPoseStack, x + 105, y + 33, 176, 0, 8, menu.getScaledProgress());
+            blit(pPoseStack, x + 84, y + 28, 176, 0, 8, menu.getScaledProgress());
         }
     }
 

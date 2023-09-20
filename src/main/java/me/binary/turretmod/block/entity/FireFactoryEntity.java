@@ -4,6 +4,7 @@ import me.binary.turretmod.networking.ModMessages;
 import me.binary.turretmod.networking.packet.ItemStackSyncPacket;
 import me.binary.turretmod.screen.FireFactoryMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
@@ -34,25 +35,24 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class FireFactoryEntity extends BlockEntity implements MenuProvider {
-
-    protected final ContainerData data;
-    private int progress = 0;
-    private int maxProgress = 20;
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if(!level.isClientSide) {
+            if(!level.isClientSide()) {
                 ModMessages.sendToClients(new ItemStackSyncPacket(this, worldPosition));
             }
         }
     };
+    protected final ContainerData data;
+    private int progress = 0;
+    private int maxProgress = 20;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            lazyItemHandler.cast();
+            return lazyItemHandler.cast();
         }
         return super.getCapability(cap);
     }
@@ -67,6 +67,10 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
     public void onLoad() {
         super.onLoad();
         lazyItemHandler = LazyOptional.of(() -> itemHandler);
+        setChanged();
+        if(!level.isClientSide()) {
+            ModMessages.sendToClients(new ItemStackSyncPacket(itemHandler, worldPosition));
+        }
     }
     @Override
     protected void saveAdditional(CompoundTag nbt) {
@@ -123,14 +127,15 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
     }
     @Override
     public Component getDisplayName() {
-        return Component.literal("Fire Factory");
+        return Component.literal("\uD83D\uDD25 Fire Factory \uD83D\uDD25");
     }
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, FireFactoryEntity e) {
-        if(level.isClientSide) return;
-        setChanged(level, blockPos, blockState);
+        if(level.isClientSide()) return;
         if(!e.hasFuel()) {
             e.resetProgress();
-            return;}
+            setChanged(level, blockPos, blockState);
+            return;
+        }
         ItemStack fuel = e.itemHandler.getStackInSlot(0);
         if(e.progress == -1) {
             e.maxProgress = ForgeHooks.getBurnTime(fuel,RecipeType.SMELTING);
@@ -139,7 +144,8 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
         if(e.progress < e.maxProgress && e.progress>=0) {
             System.out.println(e.progress);
             e.progress++;
-        } else if (e.progress == e.maxProgress) {
+            setChanged(level, blockPos, blockState);
+        } else if (e.progress >= e.maxProgress) {
             //Spread out the fire
             //System.out.println("!!!FIRE!!!");
             fuel.setCount(fuel.getCount()-1);
@@ -148,8 +154,8 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
                 FallingBlockEntity fire = FallingBlockEntity.fall(level,blockPos.above(2), Blocks.FIRE.defaultBlockState());
                 Vec3 motion = new Vec3(Math.random()-0.5,Math.random(),Math.random()-0.5);
                 fire.lerpMotion(motion.x,motion.y,motion.z);
-                fire.setDeltaMovement(motion);
-                level.addFreshEntity(fire);
+                //fire.setDeltaMovement(motion);
+                //level.addFreshEntity(fire);
             }
             e.progress = -1;
         }
@@ -161,6 +167,7 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
     private void resetProgress() {this.progress = -1;}
     public ItemStack getRenderStack() {return itemHandler.getStackInSlot(0);}
 
+    public int getProgress() {return this.data.get(0);}
     public void setHandler(ItemStackHandler itemStackHandler) {
         for(int i = 0; i < itemStackHandler.getSlots(); i++) {
             itemHandler.setStackInSlot(i,itemStackHandler.getStackInSlot(i));

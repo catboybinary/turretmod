@@ -1,9 +1,7 @@
 package me.binary.turretmod.block.entity;
 
 import me.binary.turretmod.TurretMod;
-import me.binary.turretmod.block.FireFactoryBlock;
 import me.binary.turretmod.block.ModBlocks;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;

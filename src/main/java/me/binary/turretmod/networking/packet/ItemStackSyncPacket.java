@@ -14,30 +14,31 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class ItemStackSyncPacket {
-    private final ItemStackHandler itemHandler;
+    private final ItemStackHandler itemStackHandler;
     private final BlockPos pos;
 
-    public ItemStackSyncPacket(ItemStackHandler itemHandler, BlockPos pos) {
-        this.itemHandler = itemHandler;
+    public ItemStackSyncPacket(ItemStackHandler itemStackHandler, BlockPos pos) {
+        this.itemStackHandler = itemStackHandler;
         this.pos = pos;
     }
 
     public ItemStackSyncPacket(FriendlyByteBuf buf) {
-        List<ItemStack> list = buf.readCollection(ArrayList::new, FriendlyByteBuf::readItem);
-        itemHandler = new ItemStackHandler(list.size());
-        for (int i = 0; i < list.size(); i++) {
-            itemHandler.insertItem(i, list.get(i), false);
+        List<ItemStack> collection = buf.readCollection(ArrayList::new, FriendlyByteBuf::readItem);
+        itemStackHandler = new ItemStackHandler(collection.size());
+        for (int i = 0; i < collection.size(); i++) {
+            itemStackHandler.insertItem(i, collection.get(i), false);
         }
+
         this.pos = buf.readBlockPos();
     }
 
     public void toBytes(FriendlyByteBuf buf) {
-        Collection<ItemStack> collection = new ArrayList<>();
-        for(int i = 0; i < itemHandler.getSlots(); i++) {
-            collection.add(itemHandler.getStackInSlot(i));
+        Collection<ItemStack> list = new ArrayList<>();
+        for(int i = 0; i < itemStackHandler.getSlots(); i++) {
+            list.add(itemStackHandler.getStackInSlot(i));
         }
 
-        buf.writeCollection(collection, FriendlyByteBuf::writeItem);
+        buf.writeCollection(list, FriendlyByteBuf::writeItem);
         buf.writeBlockPos(pos);
     }
 
@@ -45,7 +46,7 @@ public class ItemStackSyncPacket {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
             if(Minecraft.getInstance().level.getBlockEntity(pos) instanceof FireFactoryEntity blockEntity) {
-                blockEntity.setHandler(this.itemHandler);
+                blockEntity.setHandler(this.itemStackHandler);
             }
         });
         return true;

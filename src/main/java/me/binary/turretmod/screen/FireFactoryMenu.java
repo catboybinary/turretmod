@@ -11,31 +11,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.SlotItemHandler;
+import java.util.List;
 
 public class FireFactoryMenu extends AbstractContainerMenu {
-    public final FireFactoryEntity blockEntity;
-    private final Level level;
-    private final ContainerData data;
-    public FireFactoryMenu(int id, Inventory inv, FriendlyByteBuf extraData) {
-        this(id, inv, inv.player.level.getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(2));
-    }
 
-    public FireFactoryMenu(int id, Inventory inv, BlockEntity entity, ContainerData data) {
-        super(ModMenuTypes.FIRE_FACTORY_MENU.get(), id);
-        checkContainerSize(inv, 1);
-        blockEntity = (FireFactoryEntity) entity;
-        this.level = inv.player.level;
-        this.data = data;
-
-        addPlayerInventory(inv);
-        addPlayerHotbar(inv);
-
-        this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
-            this.addSlot(new SlotItemHandler(handler, 0, 86, 60));
-        });
-
-        addDataSlots(data);
-    }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
     private static final int HOTBAR_SLOT_COUNT = 9;
@@ -48,6 +27,30 @@ public class FireFactoryMenu extends AbstractContainerMenu {
 
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 1;  // must be the number of slots you have!
+
+
+    public final FireFactoryEntity blockEntity;
+    private final Level level;
+    private final ContainerData data;
+    public FireFactoryMenu(int id, Inventory inv, FriendlyByteBuf extraData) {
+        this(id, inv, inv.player.level.getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(2));
+    }
+
+    public FireFactoryMenu(int id, Inventory inv, BlockEntity entity, ContainerData data) {
+        super(ModMenuTypes.FIRE_FACTORY_MENU.get(), id);
+        checkContainerSize(inv, TE_INVENTORY_SLOT_COUNT);
+        this.blockEntity = (FireFactoryEntity) entity;
+        this.level = inv.player.level;
+        this.data = data;
+
+        addPlayerInventory(inv);
+        addPlayerHotbar(inv);
+
+        this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
+            this.addSlot(new SlotItemHandler(handler, 0, 80, 56));
+        });
+        addDataSlots(data);
+    }
 
     public boolean isCrafting() {
         return data.get(0) > 0;
