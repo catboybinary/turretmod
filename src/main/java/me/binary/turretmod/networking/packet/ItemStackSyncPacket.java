@@ -16,10 +16,14 @@ import java.util.function.Supplier;
 public class ItemStackSyncPacket {
     private final ItemStackHandler itemStackHandler;
     private final BlockPos pos;
+    private final int progress;
+    private final int maxProgress;
 
-    public ItemStackSyncPacket(ItemStackHandler itemStackHandler, BlockPos pos) {
+    public ItemStackSyncPacket(ItemStackHandler itemStackHandler, BlockPos pos, int progress, int maxProgress) {
         this.itemStackHandler = itemStackHandler;
         this.pos = pos;
+        this.progress = progress;
+        this.maxProgress = maxProgress;
     }
 
     public ItemStackSyncPacket(FriendlyByteBuf buf) {
@@ -30,6 +34,8 @@ public class ItemStackSyncPacket {
         }
 
         this.pos = buf.readBlockPos();
+        this.progress = buf.readInt();
+        this.maxProgress = buf.readInt();
     }
 
     public void toBytes(FriendlyByteBuf buf) {
@@ -40,6 +46,8 @@ public class ItemStackSyncPacket {
 
         buf.writeCollection(list, FriendlyByteBuf::writeItem);
         buf.writeBlockPos(pos);
+        buf.writeInt(progress);
+        buf.writeInt(maxProgress);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
@@ -47,6 +55,8 @@ public class ItemStackSyncPacket {
         context.enqueueWork(() -> {
             if(Minecraft.getInstance().level.getBlockEntity(pos) instanceof FireFactoryEntity blockEntity) {
                 blockEntity.setHandler(this.itemStackHandler);
+                blockEntity.setProgress(this.progress);
+                blockEntity.setMaxProgress(this.maxProgress);
             }
         });
         return true;

@@ -2,6 +2,7 @@ package me.binary.turretmod.block.entity;
 
 import me.binary.turretmod.networking.ModMessages;
 import me.binary.turretmod.networking.packet.ItemStackSyncPacket;
+import me.binary.turretmod.networking.packet.UpdateFallingBlockMotionPacket;
 import me.binary.turretmod.screen.FireFactoryMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,12 +36,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class FireFactoryEntity extends BlockEntity implements MenuProvider {
+    public float degrees = 0;
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
             if(!level.isClientSide()) {
-                ModMessages.sendToClients(new ItemStackSyncPacket(this, worldPosition));
+                ModMessages.sendToClients(new ItemStackSyncPacket(this, worldPosition, progress, maxProgress));
             }
         }
     };
@@ -68,9 +70,6 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
         super.onLoad();
         lazyItemHandler = LazyOptional.of(() -> itemHandler);
         setChanged();
-        if(!level.isClientSide()) {
-            ModMessages.sendToClients(new ItemStackSyncPacket(itemHandler, worldPosition));
-        }
     }
     @Override
     protected void saveAdditional(CompoundTag nbt) {
@@ -131,6 +130,7 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
     }
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, FireFactoryEntity e) {
         if(level.isClientSide()) return;
+        ModMessages.sendToClients(new ItemStackSyncPacket(e.itemHandler, blockPos, e.progress, e.maxProgress));
         if(!e.hasFuel()) {
             e.resetProgress();
             setChanged(level, blockPos, blockState);
@@ -153,8 +153,9 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
             for(int i = 0;i<e.maxProgress/50;i++) {
                 FallingBlockEntity fire = FallingBlockEntity.fall(level,blockPos.above(2), Blocks.FIRE.defaultBlockState());
                 Vec3 motion = new Vec3(Math.random()-0.5,Math.random(),Math.random()-0.5);
-                fire.lerpMotion(motion.x,motion.y,motion.z);
-                //fire.setDeltaMovement(motion);
+                fire.setDeltaMovement(motion);
+                ModMessages.sendToClients(new UpdateFallingBlockMotionPacket(
+                        fire.getId(),motion.x, motion.y, motion.z));
                 //level.addFreshEntity(fire);
             }
             e.progress = -1;
@@ -167,7 +168,10 @@ public class FireFactoryEntity extends BlockEntity implements MenuProvider {
     private void resetProgress() {this.progress = -1;}
     public ItemStack getRenderStack() {return itemHandler.getStackInSlot(0);}
 
-    public int getProgress() {return this.data.get(0);}
+    public int getProgress() {return progress;}
+    public int getMaxProgress() {return maxProgress;}
+    public void setProgress(int value) {progress = value;}
+    public void setMaxProgress(int value) {maxProgress = value;}
     public void setHandler(ItemStackHandler itemStackHandler) {
         for(int i = 0; i < itemStackHandler.getSlots(); i++) {
             itemHandler.setStackInSlot(i,itemStackHandler.getStackInSlot(i));

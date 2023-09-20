@@ -2,6 +2,7 @@ package me.binary.turretmod.networking;
 
 import me.binary.turretmod.TurretMod;
 import me.binary.turretmod.networking.packet.ItemStackSyncPacket;
+import me.binary.turretmod.networking.packet.UpdateFallingBlockMotionPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -30,6 +31,11 @@ public class ModMessages {
                 .decoder(ItemStackSyncPacket::new)
                 .encoder(ItemStackSyncPacket::toBytes)
                 .consumerMainThread(ItemStackSyncPacket::handle)
+                .add();
+        net.messageBuilder(UpdateFallingBlockMotionPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(UpdateFallingBlockMotionPacket::new)
+                .encoder(UpdateFallingBlockMotionPacket::toBytes)
+                .consumerMainThread(UpdateFallingBlockMotionPacket::handle)
                 .add();
     }
 
